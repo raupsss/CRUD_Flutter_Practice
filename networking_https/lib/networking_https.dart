@@ -35,8 +35,9 @@ Future<http.Response> postData() async {
 
 Future<http.Response> updateData(id) async {
   Map<String, dynamic> data = {
-    "name": "jhon dea",
-    "email": "jhondea@gmail.com"
+    "name": inputName.text,
+    "email": inputEmail.text,
+    "gender": inputGender.text
   };
   var result = await http.put(
     Uri.parse("http://localhost:8082/api/user/updateUser/${id}"),
@@ -89,7 +90,7 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                 itemCount: json.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    margin: const EdgeInsets.all(18.0),
+                    margin: const EdgeInsets.all(8.0),
                     child: ListTile(
                       leading: CircleAvatar(
                         child: Text(json[index]['name'][0]),
@@ -102,6 +103,9 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                         children: [
                           IconButton(
                             onPressed: (() {
+                              inputName.text = json[index]['name'];
+                              inputEmail.text = json[index]['email'];
+                              inputGender.text = json[index]['gender'];
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) =>
@@ -146,20 +150,22 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                                                 },
                                                 controller: inputEmail,
                                                 decoration: InputDecoration(
-                                                  border: OutlineInputBorder(),
+                                                  // border: OutlineInputBorder(),
                                                   labelText: 'Email',
+                                                  // hintText: "Hint Text",
                                                 ),
                                               ),
                                               SizedBox(
                                                 height: 10,
                                               ),
-                                              TextFormField(
-                                                controller: inputGender,
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: 'Gender',
-                                                ),
-                                              ),
+
+                                              // TextFormField(
+                                              //   controller: inputGender,
+                                              //   decoration: InputDecoration(
+                                              //     border: OutlineInputBorder(),
+                                              //     labelText: 'Gender',
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ),
@@ -169,14 +175,24 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                                                 MainAxisAlignment.spaceAround,
                                             children: [
                                               TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, 'Cancel'),
+                                                onPressed: () {
+                                                  inputName.clear();
+                                                  inputEmail.clear();
+                                                  inputGender.clear();
+                                                  Navigator.pop(context);
+                                                },
                                                 child: const Text(
                                                   'Cancel',
                                                 ),
                                               ),
                                               TextButton(
-                                                onPressed: () {
+                                                onPressed: () async {
+                                                  await updateData(
+                                                      json[index]['id']);
+                                                  inputName.clear();
+                                                  inputEmail.clear();
+                                                  inputGender.clear();
+                                                  setState(() {});
                                                   Navigator.pop(context);
                                                 },
                                                 child: const Text('OK'),
@@ -190,10 +206,10 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                           ),
                           IconButton(
                             icon: Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                deleteData(json[index]['id']);
-                              });
+                            onPressed: () async {
+                              await deleteData(json[index]['id']);
+
+                              setState(() {});
                             },
                           ),
                         ],
@@ -275,21 +291,25 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      onPressed: () {
+                        inputName.clear();
+                        inputEmail.clear();
+                        inputGender.clear();
+                        Navigator.pop(context);
+                      },
                       child: const Text(
                         'Cancel',
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            postData();
-                            inputName.clear();
-                            inputEmail.clear();
-                            inputGender.clear();
-                            Navigator.pop(context);
-                          });
+                          await postData();
+                          inputName.clear();
+                          inputEmail.clear();
+                          inputGender.clear();
+                          Navigator.pop(context);
+                          setState(() {});
                         }
                       },
                       child: const Text('OK'),
