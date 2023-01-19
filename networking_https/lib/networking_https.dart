@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, must_be_immutable, sort_child_properties_last, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -69,10 +69,13 @@ class NetworkingHttps extends StatefulWidget {
 
 class _NetworkingHttpsState extends State<NetworkingHttps> {
   final _formKey = GlobalKey<FormState>();
+  // Future<http.Response> data = getData();
 
   @override
   Widget build(BuildContext context) {
-    // print(postData());
+    // FirebaseFirestore firestore = FirebaseFirestore.instance;
+    // CollectionReference users = firestore.
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -81,11 +84,21 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
         centerTitle: true,
       ),
       body: Container(
+        // child: StreamBuilder(
+        //   stream: users.snapshots(),
+        //   builder: (context, snapshot) {
+        //     if(snapshot.hasData){
+        //       return Column(
+        //         children: [],
+        //       )
+        //     }
+        //   },
+        // ),
         child: FutureBuilder(
           future: getData(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              List<dynamic> json = jsonDecode(snapshot.data!.body);
+              var json = jsonDecode(snapshot.data!.body);
               return ListView.builder(
                 itemCount: json.length,
                 itemBuilder: (context, index) {
@@ -107,100 +120,98 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                               inputEmail.text = json[index]['email'];
                               inputGender.text = json[index]['gender'];
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                        title: const Text(
-                                          'Update User',
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        content: Form(
-                                          key: _formKey,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              TextFormField(
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return "Name cannot be empty";
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: inputName,
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: 'Name',
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              TextFormField(
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return "Email cannot be empty";
-                                                  }
-                                                  if (!EmailValidator.validate(
-                                                      value)) {
-                                                    return "Please insert correct email";
-                                                  }
-                                                  return null;
-                                                },
-                                                controller: inputEmail,
-                                                decoration: InputDecoration(
-                                                  // border: OutlineInputBorder(),
-                                                  labelText: 'Email',
-                                                  // hintText: "Hint Text",
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-
-                                              // TextFormField(
-                                              //   controller: inputGender,
-                                              //   decoration: InputDecoration(
-                                              //     border: OutlineInputBorder(),
-                                              //     labelText: 'Gender',
-                                              //   ),
-                                              // ),
-                                            ],
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                  title: const Text(
+                                    'Update User',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  content: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextFormField(
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "Name cannot be empty";
+                                            }
+                                            return null;
+                                          },
+                                          controller: inputName,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            labelText: 'Name',
                                           ),
                                         ),
-                                        actions: <Widget>[
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  inputName.clear();
-                                                  inputEmail.clear();
-                                                  inputGender.clear();
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text(
-                                                  'Cancel',
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  await updateData(
-                                                      json[index]['id']);
-                                                  inputName.clear();
-                                                  inputEmail.clear();
-                                                  inputGender.clear();
-                                                  setState(() {});
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text('OK'),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ));
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        TextFormField(
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "Email cannot be empty";
+                                            }
+                                            if (!EmailValidator.validate(
+                                                value)) {
+                                              return "Please insert correct email";
+                                            }
+                                            return null;
+                                          },
+                                          controller: inputEmail,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            labelText: 'Email',
+                                            // hintText: "Hint Text",
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        TextFormField(
+                                          controller: inputGender,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            labelText: 'Gender',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            inputName.clear();
+                                            inputEmail.clear();
+                                            inputGender.clear();
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text(
+                                            'Cancel',
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            await updateData(json[index]['id']);
+                                            inputName.clear();
+                                            inputEmail.clear();
+                                            inputGender.clear();
+                                            setState(() {});
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              );
                             }),
                             icon: Icon(Icons.edit),
                           ),
@@ -315,7 +326,7 @@ class _NetworkingHttpsState extends State<NetworkingHttps> {
                       child: const Text('OK'),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           );
